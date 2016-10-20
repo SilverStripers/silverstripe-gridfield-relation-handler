@@ -10,7 +10,7 @@ class GridFieldHasOneRelationHandler extends GridFieldRelationHandler {
 		$this->onObject = $onObject;
 		$this->relationName = $relationName;
 
-		$hasOne = $onObject->has_one($relationName);
+		$hasOne = $onObject->hasOneComponent($relationName);
 		if(!$hasOne) {
 			user_error('Unable to find a has_one relation named ' . $relationName . ' on ' . $onObject->ClassName, E_USER_WARNING);
 		}
@@ -24,6 +24,9 @@ class GridFieldHasOneRelationHandler extends GridFieldRelationHandler {
 		if($state->FirstTime) {
 			$state->RelationVal = $this->onObject->{$this->relationName}()->ID;
 		}
+		if(isset($_REQUEST[$this->relationName . 'ID'])) {
+			$state->RelationVal = (int)$_REQUEST[$this->relationName . 'ID'];
+		}
 	}
 
 	public function getColumnContent($gridField, $record, $columnName) {
@@ -33,9 +36,14 @@ class GridFieldHasOneRelationHandler extends GridFieldRelationHandler {
 		}
 
 		$state = $this->getState($gridField);
-		
+
 		$checked = $state->RelationVal == $record->ID;
-		$field = new ArrayData(array('Checked' => $checked, 'Value' => $record->ID, 'Name' => $this->relationName . 'ID'));
+		$field = new ArrayData(array(
+			'Checked' 	=> $checked,
+			'Value'	 	=> $record->ID,
+			'Name' 		=> $this->relationName . 'ID',
+			'ID'		=> $record->ID
+		));
 		return $field->renderWith('GridFieldHasOneRelationHandlerItem');
 	}
 
